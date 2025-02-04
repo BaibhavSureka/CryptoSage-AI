@@ -1,11 +1,9 @@
 "use client"
 
-import { useState,useEffect } from "react"
+import { useState } from "react"
 import { Activity, ArrowDownRight, ArrowUpRight, BarChart2, PieChart, Settings, Zap } from 'lucide-react'
 import { AreaChart, Area, PieChart as RechartsPie, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts"
 import { cn } from "@/lib/utils"
-import axios from "axios"
-import { useMetaMask } from "metamask-react"
 
 const portfolioData = [
   { name: "ETH", value: 40, color: "#627EEA" },
@@ -15,11 +13,28 @@ const portfolioData = [
   { name: "Other", value: 5, color: "#2C3E50" },
 ]
 
+const performanceData = [
+  { date: "1 May", ETH: 2000, BTC: 28000, BNB: 300 },
+  { date: "8 May", ETH: 2200, BTC: 30000, BNB: 320 },
+  { date: "15 May", ETH: 1800, BTC: 27000, BNB: 280 },
+  { date: "22 May", ETH: 2100, BTC: 29000, BNB: 310 },
+  { date: "29 May", ETH: 2300, BTC: 31000, BNB: 330 },
+  { date: "5 Jun", ETH: 2400, BTC: 32000, BNB: 340 },
+  { date: "12 Jun", ETH: 2600, BTC: 34000, BNB: 360 },
+]
+
 const topMovers = [
   { name: "PEPE", change: 25.5, value: 0.00000012 },
   { name: "SHIB", change: -12.3, value: 0.00000851 },
   { name: "DOGE", change: 8.7, value: 0.07253 },
   { name: "ARB", change: -5.2, value: 1.23 },
+]
+
+const aiInsights = [
+  "Consider rebalancing: Your BTC allocation is 5% below the recommended threshold.",
+  "Opportunity: ETH gas fees are at a 30-day low. Good time for transactions.",
+  "Risk Alert: Your stablecoin exposure is lower than your set risk tolerance.",
+  "Yield Opportunity: Lending USDC on Aave (Polygon) currently offers 5.2% APY.",
 ]
 
 interface SidebarItemProps {
@@ -72,70 +87,7 @@ function OverviewCard({ title, value, change }: OverviewCardProps) {
   )
 }
 
-interface PortfolioItem {
-  name: string;
-  value: number;
-  color: string;
-}
-
-
 const DashboardPage = () => {
-  const [portfolio, setPortfolio] = useState<PortfolioItem[]>([]);
-  const [trendData, setTrendData] = useState([]);
-  const [aiInsights, setAiInsights] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get("http://127.0.0.1:8000/api/portfolio/");
-        const data = response.data;
-  
-        const portfolioArray: PortfolioItem[] = Object.entries(data.portfolio).map(
-          ([name, value]) => ({
-            name,
-            value: Number(value), // Ensure it's a number
-            color: getColor(name),
-          })
-        );
-        
-  
-        // Parse trend data
-        const parsedTrendData = JSON.parse(`[${data.trend_df.replace(/} {/g, "},{")}]`);
-  
-        setPortfolio(portfolioArray);
-        setTrendData(parsedTrendData);
-        setAiInsights(data.ai_insights);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-  
-    fetchData();
-  }, []);
-
-  const getColor = (coin: string): string => {
-    const colors: Record<string, string> = {
-      BTC: "#F7931A",
-      ETH: "#627EEA",
-      LTC: "#BEBEBE",
-      XRP: "#346AA9",
-      ADA: "#3CC8C8",
-    };
-  
-    return colors[coin] ?? "#8884d8"; // Default color if coin is not listed
-  };
-  
-  if (loading) {
-    return (
-      <div className="flex h-screen justify-center items-center bg-gray-900 text-white">
-        <h2 className="text-xl font-bold">Loading...</h2>
-      </div>
-    );
-  }
-  
   return (
     <div className="flex h-screen bg-gray-900 text-white">
       {/* Sidebar */}
@@ -179,20 +131,32 @@ const DashboardPage = () => {
               <h2 className="text-xl font-semibold mb-4">Portfolio Performance</h2>
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={trendData}>
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip />
-                  {portfolio.map((coin) => (
+                  <AreaChart data={performanceData}>
+                    <XAxis dataKey="date" />
+                    <YAxis />
+                    <Tooltip />
                     <Area
-                      key={coin.name}
                       type="monotone"
-                      dataKey={coin.name}
-                      stroke={coin.color}
-                      fill={coin.color}
+                      dataKey="ETH"
+                      stackId="1"
+                      stroke="#627EEA"
+                      fill="#627EEA"
                     />
-                  ))}
-                </AreaChart>
+                    <Area
+                      type="monotone"
+                      dataKey="BTC"
+                      stackId="1"
+                      stroke="#F7931A"
+                      fill="#F7931A"
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="BNB"
+                      stackId="1"
+                      stroke="#F3BA2F"
+                      fill="#F3BA2F"
+                    />
+                  </AreaChart>
                 </ResponsiveContainer>
               </div>
             </div>
@@ -201,8 +165,8 @@ const DashboardPage = () => {
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <RechartsPie>
-                  <Pie
-                      data={portfolio}
+                    <Pie
+                      data={portfolioData}
                       cx="50%"
                       cy="50%"
                       innerRadius={60}
@@ -211,7 +175,7 @@ const DashboardPage = () => {
                       paddingAngle={5}
                       dataKey="value"
                     >
-                      {portfolio.map((entry, index) => (
+                      {portfolioData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
@@ -266,12 +230,12 @@ const DashboardPage = () => {
             <div className="bg-gray-800 rounded-lg p-6">
               <h2 className="text-xl font-semibold mb-4">AI Insights</h2>
               <div className="space-y-4">
-              {aiInsights.map((insight, index) => (
-                <div key={index} className="flex items-start">
-                  <Zap className="h-5 w-5 text-yellow-500 mr-2 flex-shrink-0" />
-                  <p>{insight}</p>
-                </div>
-              ))}
+                {aiInsights.map((insight, index) => (
+                  <div key={index} className="flex items-start">
+                    <Zap className="h-5 w-5 text-yellow-500 mr-2 flex-shrink-0" />
+                    <p>{insight}</p>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
