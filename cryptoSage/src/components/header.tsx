@@ -123,7 +123,7 @@ const Header = () => {
             <Button variant="ghost" className="text-gray-300 hover:text-purple-400" asChild>
               <Link href="/login">
               {
-                localStorage.getItem("token") ? "" : "Login"
+                localStorage.getItem("token") ? "Logout" : "Login"
               }
               </Link>
             </Button>

@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { Activity, ArrowDownRight, ArrowUpRight, BarChart2, PieChart, Settings, Zap } from 'lucide-react'
 import { AreaChart, Area, PieChart as RechartsPie, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts"
 import { cn } from "@/lib/utils"
+import axios from "axios"
+import { useMetaMask } from "metamask-react"
 
 const portfolioData = [
   { name: "ETH", value: 40, color: "#627EEA" },
@@ -14,21 +16,10 @@ const portfolioData = [
   { name: "Other", value: 5, color: "#2C3E50" },
 ]
 
-const performanceData = [
-  { date: "1 May", ETH: 2000, BTC: 28000, BNB: 300 },
-  { date: "8 May", ETH: 2200, BTC: 30000, BNB: 320 },
-  { date: "15 May", ETH: 1800, BTC: 27000, BNB: 280 },
-  { date: "22 May", ETH: 2100, BTC: 29000, BNB: 310 },
-  { date: "29 May", ETH: 2300, BTC: 31000, BNB: 330 },
-  { date: "5 Jun", ETH: 2400, BTC: 32000, BNB: 340 },
-  { date: "12 Jun", ETH: 2600, BTC: 34000, BNB: 360 },
-]
-
 const topMovers = [
-  { name: "PEPE", change: 25.5, value: 0.00000012 },
-  { name: "SHIB", change: -12.3, value: 0.00000851 },
-  { name: "DOGE", change: 8.7, value: 0.07253 },
-  { name: "ARB", change: -5.2, value: 1.23 },
+  { name: "BTC", change: 25.5, value: 1965317002840 },
+  { name: "ETH", change: -12.3, value: 335106656370 },
+  { name: "XRP", change: 8.7, value: 261781768168 },
 ]
 
 interface SidebarItemProps {
@@ -87,6 +78,13 @@ function OverviewCard({ title, value, change }: OverviewCardProps) {
     </div>
   )
 }
+
+interface PortfolioItem {
+  name: string;
+  value: number;
+  color: string;
+}
+
 
 const DashboardPage = () => {
   const [portfolio, setPortfolio] = useState<PortfolioItem[]>([]);
@@ -206,32 +204,20 @@ const DashboardPage = () => {
               <h2 className="text-xl font-semibold mb-4">Portfolio Performance</h2>
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={performanceData}>
-                    <XAxis dataKey="date" />
-                    <YAxis />
-                    <Tooltip />
+                <AreaChart data={trendData}>
+                  <XAxis dataKey="date" />
+                  <YAxis />
+                  <Tooltip />
+                  {portfolio.map((coin) => (
                     <Area
+                      key={coin.name}
                       type="monotone"
-                      dataKey="ETH"
-                      stackId="1"
-                      stroke="#627EEA"
-                      fill="#627EEA"
+                      dataKey={coin.name}
+                      stroke={coin.color}
+                      fill={coin.color}
                     />
-                    <Area
-                      type="monotone"
-                      dataKey="BTC"
-                      stackId="1"
-                      stroke="#F7931A"
-                      fill="#F7931A"
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="BNB"
-                      stackId="1"
-                      stroke="#F3BA2F"
-                      fill="#F3BA2F"
-                    />
-                  </AreaChart>
+                  ))}
+                </AreaChart>
                 </ResponsiveContainer>
               </div>
             </div>
@@ -240,8 +226,8 @@ const DashboardPage = () => {
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <RechartsPie>
-                    <Pie
-                      data={portfolioData}
+                  <Pie
+                      data={portfolio}
                       cx="50%"
                       cy="50%"
                       innerRadius={60}
@@ -250,7 +236,7 @@ const DashboardPage = () => {
                       paddingAngle={5}
                       dataKey="value"
                     >
-                      {portfolioData.map((entry, index) => (
+                      {portfolio.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
@@ -304,12 +290,12 @@ const DashboardPage = () => {
             <div className="bg-gray-800 rounded-lg p-6">
               <h2 className="text-xl font-semibold mb-4">AI Insights</h2>
               <div className="space-y-4">
-                {aiInsights.map((insight, index) => (
-                  <div key={index} className="flex items-start">
-                    <Zap className="h-5 w-5 text-yellow-500 mr-2 flex-shrink-0" />
-                    <p>{insight}</p>
-                  </div>
-                ))}
+              {aiInsights.map((insight, index) => (
+                <div key={index} className="flex items-start">
+                  <Zap className="h-5 w-5 text-yellow-500 mr-2 flex-shrink-0" />
+                  <p>{insight}</p>
+                </div>
+              ))}
               </div>
             </div>
           </div>
