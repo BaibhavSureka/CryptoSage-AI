@@ -1,11 +1,10 @@
-import { Inter } from "next/font/google"; // Font loader should be in the module scope
 import "@/styles/globals.css";
+import { Inter as FontSans } from "next/font/google";
 import { cn } from "@/lib/utils";
 import Header from "@/components/header";
-import Disclaimer from "@/components/Disclaimer"; // Import Disclaimer
+import MetaMaskWrapper from "@/components/MetaMaskWrapper"; // Import the new wrapper
 
-// Font loader should be outside the RootLayout component
-const fontSans = Inter({
+const fontSans = FontSans({
   subsets: ["latin"],
   variable: "--font-sans",
 });
@@ -20,13 +19,15 @@ export default function RootLayout({
       <head />
       <body
         className={cn(
-          "min-h-screen bg-gray-900 font-sans antialiased",
+          "min-h-screen bg-background font-sans antialiased",
           fontSans.variable
         )}
       >
-        <Header />
-        <main>{children}</main>
-        <Disclaimer /> {/* Add Disclaimer Button */}
+        {/* Wrap everything inside MetaMaskWrapper */}
+        <MetaMaskWrapper>
+          <Header />
+          <main className="">{children}</main>
+        </MetaMaskWrapper>
       </body>
     </html>
   );
