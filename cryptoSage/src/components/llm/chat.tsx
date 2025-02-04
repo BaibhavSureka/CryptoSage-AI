@@ -1,12 +1,12 @@
 "use client"
 
-import React, { useState } from "react";
-import { useAIState, useUIState } from "ai/rsc";
-import { MessageList } from "@/components/llm/message-list";
-import { cn } from "@/lib/utils";
-import { ChatInput } from "@/components/llm/chat-input";
-import { Card, CardContent, CardHeader, } from "@/components/ui/card";
-import { Swap } from "../web3/swap";
+import { useState } from "react"
+import { useAIState, useUIState } from "ai/rsc"
+import { MessageList } from "@/components/llm/message-list"
+import { cn } from "@/lib/utils"
+import { ChatInput } from "@/components/llm/chat-input"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { MetaMaskProvider } from "metamask-react"
 
 export function Chat() {
   const [messages] = useUIState()
@@ -14,10 +14,8 @@ export function Chat() {
   const [aiState] = useAIState()
 
   return (
-      <div
-        className="group w-full overflow-auto pl-0 peer-[[data-state=open]]:lg:pl-[250px] peer-[[data-state=open]]:xl:pl-[300px]">
-        {/* <Swap /> */}
-
+    <MetaMaskProvider>
+      <div className="group w-full overflow-auto pl-0 peer-[[data-state=open]]:lg:pl-[250px] peer-[[data-state=open]]:xl:pl-[300px] bg-gray-900 min-h-[calc(100vh-4rem)]">
         {messages.length === 0 ? (
           <IntroSection setInput={setInput} />
         ) : (
@@ -27,7 +25,8 @@ export function Chat() {
         )}
         <ChatInput input={input} setInput={setInput} />
       </div>
-  );
+    </MetaMaskProvider>
+  )
 }
 
 function IntroSection({ setInput }: { setInput: (input: string) => void }) {

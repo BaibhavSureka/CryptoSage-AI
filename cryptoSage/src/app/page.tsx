@@ -1,11 +1,16 @@
+'use client'
+
 import { Button } from "@/components/ui/button"
-import { Check } from "lucide-react"
+import { Check } from 'lucide-react'
+import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { PricingSection } from "@/components/pricing-section"
+import { CryptoGame } from "@/components/crypto-game/game"
 
+export default function HomePage() {
+  const [isGameOpen, setIsGameOpen] = useState(false)
 
-const HomePage = () => {
   return (
     <div className="relative">
       {/* Hero Section */}
@@ -19,11 +24,11 @@ const HomePage = () => {
                 Advanced AI algorithms for optimal trading
               </li>
               <li className="flex items-center">
-                            <Check className="text-purple-500 text-2xl mt-1" />
+                <Check className="text-purple-500 text-2xl mt-1" />
                 Real-time market insights and predictions
               </li>
               <li className="flex items-center">
-                            <Check className="text-purple-500 text-2xl mt-1" />
+                <Check className="text-purple-500 text-2xl mt-1" />
                 Secure multi-chain portfolio tracking
               </li>
             </ul>
@@ -31,9 +36,11 @@ const HomePage = () => {
               <Button asChild size="lg" className="bg-purple-500 text-white px-6 py-3 rounded-full font-semibold hover:bg-purple-600">
                 <Link href="/dashboard">Get started for Free</Link>
               </Button>
-              <Button variant="outline" size="lg" className="border bg-black border-white text-white px-6 py-3 rounded-full font-semibold hover:bg-white hover:text-purple-500">
-                Watch Demo
+              <Button variant="outline" size="lg" className="border bg-black border-white text-white px-6 py-3 rounded-full font-semibold hover:bg-white hover:text-purple-500" onClick={() => setIsGameOpen(true)}
+                >
+                Play To Learn Crypto
               </Button>
+              <CryptoGame isOpen={isGameOpen} onClose={() => setIsGameOpen(false)} />
             </div>
           </div>
           <div className="md:w-1/2">
@@ -75,29 +82,28 @@ const HomePage = () => {
       </section>
 
       {/* Features Section */}
-      {/* Features Section */}
       <section className="bg-[#0D1117] text-white py-20 px-6 border-t border-gray-800">
         <div className="container mx-auto">
           <h2 className="text-3xl font-bold text-center mb-12">Key Features</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
               {
-                icon: <i className="fas fa-chart-line text-4xl text-purple-500 mb-4"></i>,
+                icon: "chart-line",
                 title: "Advanced Analytics",
                 description: "In-depth market analysis and portfolio performance tracking.",
               },
               {
-                icon: <i className="fas fa-robot text-4xl text-purple-500 mb-4"></i>,
+                icon: "robot",
                 title: "AI-Powered Insights",
                 description: "Machine learning algorithms for predictive market analysis.",
               },
               {
-                icon: <i className="fas fa-exchange-alt text-4xl text-purple-500 mb-4"></i>,
+                icon: "exchange-alt",
                 title: "Multi-Chain Swaps",
                 description: "Seamless asset exchanges across multiple blockchain networks.",
               },
               {
-                icon: <i className="fas fa-shield-alt text-4xl text-purple-500 mb-4"></i>,
+                icon: "shield-alt",
                 title: "Enhanced Security",
                 description: "State-of-the-art encryption and multi-factor authentication.",
               },
@@ -106,7 +112,7 @@ const HomePage = () => {
                 key={index}
                 className="bg-gray-800/50 p-6 rounded-lg transform transition-all duration-300 hover:scale-105 hover:bg-gray-700/50"
               >
-                {feature.icon}
+                <i className={`fas fa-${feature.icon} text-4xl text-purple-500 mb-4`}></i>
                 <h3 className="text-xl font-semibold mb-4 text-white">{feature.title}</h3>
                 <p className="text-gray-400">{feature.description}</p>
               </div>
@@ -114,7 +120,6 @@ const HomePage = () => {
           </div>
         </div>
       </section>
-
 
       {/* Portfolio Analysis Section */}
       <section className="bg-[#0D1117] py-20 px-6 border-t border-gray-800">
@@ -302,8 +307,6 @@ const HomePage = () => {
           </div>
         </div>
       </section>
-
     </div>
   )
 }
-export default HomePage;
