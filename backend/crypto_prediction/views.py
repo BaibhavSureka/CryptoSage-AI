@@ -73,13 +73,29 @@ def get_portfolio(request):
                     ai_insights.append(f"🚫 {symbol}: HOLD/SELL (Predicted return: {predicted_trends[i]:.4f}, Current return: {current_trends[i]:.4f})")
             logger.info("Recommended best coin: %s", best_coin)
             logger.info("Successfully retrieved portfolio for user: %s", user_email)
+            top_coins = get_top_coins()
+            print("Top 3 Cryptocurrencies by Market Cap:")
+            top_movers = []
+            for coin in top_coins:
+                df = get_historical_data(coin['Symbol'])
+                df = analyze_trend(df)
+                latest_trend = df.iloc[-1]['Trend']
+                
+                top_movers.append({
+                    "name": coin['Symbol'],
+                    "change": float(latest_trend),  # Ensure numeric value
+                    "value": float(coin['MarketCap']) if "MarketCap" in coin else 0.0  # Handle missing MarketCap
+                })
+
             return JsonResponse({
-                    "message": "Portfolio data found",
-                    "portfolio": portfolio,
-                    "best_coin": best_coin,
-                    "ai_insights": ai_insights,
-                    "trend_df": trend_df
-                }, status=200)
+                "message": "Portfolio data found",
+                "portfolio": portfolio,
+                "best_coin": best_coin,
+                "ai_insights": ai_insights,
+                "trend_df": trend_df,
+                "top_movers": top_movers,
+            }, status=200)
+
 
         except json.JSONDecodeError:
             logger.error("Invalid JSON data received.")
@@ -91,6 +107,34 @@ def get_portfolio(request):
     logger.error("Invalid request method: %s", request.method)
     return JsonResponse({"error": "Invalid request method"}, status=405)
 
+def get_top_coins(limit=3):
+    url = 'https://min-api.cryptocompare.com/data/top/mktcapfull'
+    params = {'limit': limit, 'tsym': 'USD'}
+    response = requests.get(url, params=params)
+    data = response.json()
+    coins = []
+    for item in data['Data']:
+        coin = {
+            'Symbol': item['CoinInfo']['Name'],
+            'FullName': item['CoinInfo']['FullName'],
+            'MarketCap': item['RAW']['USD']['MKTCAP']
+        }
+        coins.append(coin)
+    return coins
+
+def get_historical_data(symbol, days=7):
+    url = f'https://min-api.cryptocompare.com/data/v2/histoday'
+    params = {'fsym': symbol, 'tsym': 'USD', 'limit': days}
+    response = requests.get(url, params=params)
+    data = response.json()
+    df = pd.DataFrame(data['Data']['Data'])
+    df['time'] = pd.to_datetime(df['time'], unit='s')
+    return df
+
+def analyze_trend(df):
+    df['PriceChange'] = df['close'].diff()
+    df['Trend'] = df['PriceChange'].apply(lambda x: 'Profit' if x > 0 else 'Loss')
+    return df
 
 def get_crypto_data(symbol, currency="USD", days=30):
     url = "https://min-api.cryptocompare.com/data/v2/histoday"
@@ -137,7 +181,7 @@ def fallback_best_crypto():
     logger.info("Using fallback best crypto data for trend analysis...")
     
     default_coins = ["BTC", "ETH", "LTC", "XRP", "ADA"]
-    portfolio = {coin: 0 for coin in default_coins}
+    portfolio = {coin: 10 for coin in default_coins}
     logger.info("Fallback portfolio created: %s", portfolio)
 
     trend_df = build_trend_dataset(portfolio, days=30)

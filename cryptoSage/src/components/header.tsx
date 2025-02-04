@@ -13,6 +13,7 @@ declare global {
     ethereum?: any; // Define ethereum as optional
   }
 }
+// ERC-20 Token ABI (to interact with token contracts)
 const ERC20_ABI = [
   {
     constant: true,
@@ -23,6 +24,7 @@ const ERC20_ABI = [
   },
 ];
 
+// Token contract addresses (modify as needed)
 const TOKEN_CONTRACTS: { [key: string]: string } = {
   USDT: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
   DAI: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
@@ -31,7 +33,6 @@ const TOKEN_CONTRACTS: { [key: string]: string } = {
 
 const Header = () => {
   const { status, connect, account } = useMetaMask();
-  const [isOpen, setIsOpen] = useState(false)
   const [web3, setWeb3] = useState<Web3 | null>(null);
   const [ethBalance, setEthBalance] = useState<string>("0");
   const [tokenBalances, setTokenBalances] = useState<{ [key: string]: string }>({});
@@ -39,6 +40,7 @@ const Header = () => {
 
   const navItems = ["Home", "Dashboard", "Chat", "Profile"];
 
+  // Initialize Web3 when connected
   useEffect(() => {
     if (status === "connected" && typeof window !== "undefined" && window.ethereum) {
       const web3Instance = new Web3(window.ethereum);
@@ -100,103 +102,48 @@ const Header = () => {
           </div>
 
           <div className="hidden md:block">
-            <div className="ml-10 flex items-center space-x-4">
+            <div className="ml-10 flex items-baseline space-x-4">
               {navItems.map((item) => (
-                <div
+                <Link
                   key={item}
-                  className="transition-transform duration-200 ease-in-out hover:scale-105 active:scale-95"
+                  href={item === "Home" ? "/" : `/${item.toLowerCase()}`}
+                  className={`px-3 py-2 rounded-md text-sm font-medium ${
+                    pathname === (item === "Home" ? "/" : `/${item.toLowerCase()}`)
+                      ? "text-purple-400"
+                      : "text-gray-300 hover:text-purple-400"
+                  }`}
                 >
-                  <Link
-                    href={item === "Home" ? "/" : `/${item.toLowerCase()}`}
-                    className={`px-3 py-2 rounded-md text-sm font-medium ${
-                      pathname === (item === "Home" ? "/" : `/${item.toLowerCase()}`)
-                        ? "text-purple-400"
-                        : "text-gray-300 hover:text-purple-400"
-                    }`}
-                  >
-                    {item}
-                  </Link>
-                </div>
+                  {item}
+                </Link>
               ))}
             </div>
           </div>
-
+          
           <div className="hidden md:flex items-center space-x-4">
             <Button variant="ghost" className="text-gray-300 hover:text-purple-400" asChild>
-              <Link href="/login">Login</Link>
+              <Link href="/login">
+              {
+                localStorage.getItem("token") ? "" : "Login"
+              }
+              </Link>
             </Button>
-            <Button className="bg-purple-600 px-4 py-2 rounded-full text-white hover:bg-purple-700 transition duration-300 ease-in-out transform hover:scale-105">
-              Connect Wallet
-            </Button>
-          </div>
-          <div className="-mr-2 flex md:hidden">
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white"
-            >
-              {isOpen ? (
-                <svg
-                  className="block h-6 w-6"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
+            {localStorage.getItem("token") ? (
+              status === "connected" ? (
+                <div className="text-green-400 text-sm">
+                  <p>Wallet: {account.substring(0, 6)}...{account.slice(-4)}</p>
+                </div>
               ) : (
-                <svg
-                  className="block h-6 w-6"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
+                <button
+                  onClick={connect}
+                  className="bg-purple-600 px-4 py-2 rounded-full text-white hover:bg-purple-700 transition duration-300 ease-in-out transform hover:scale-105"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              )}
-            </button>
+                  Connect Wallet
+                </button>
+              )
+            ) : null}
           </div>
         </div>
       </nav>
-
-      {isOpen && (
-        <div className="md:hidden bg-gray-800 py-2 transition-all duration-300 ease-in-out">
-          <div className="px-2 pt-2 pb-3 space-y-1">
-            {navItems.map((item) => (
-              <Link
-                key={item}
-                href={item === "Home" ? "/" : `/${item.toLowerCase()}`}
-                className={`block px-3 py-2 rounded-md text-base font-medium ${
-                  pathname === (item === "Home" ? "/" : `/${item.toLowerCase()}`)
-                    ? "bg-gray-700 text-white"
-                    : "text-gray-300 hover:bg-gray-700 hover:text-white"
-                }`}
-                onClick={() => setIsOpen(false)}
-              >
-                {item}
-              </Link>
-            ))}
-            <Link
-              href="/login"
-              className="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
-              onClick={() => setIsOpen(false)}
-            >
-              Login
-            </Link>
-            <Link
-              href="/register"
-              className="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
-              onClick={() => setIsOpen(false)}
-            >
-              Sign Up
-            </Link>
-            <button className="block w-full text-left px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md transition duration-300 ease-in-out">
-              Connect Wallet
-            </button>
-          </div>
-        </div>
-      )}
     </header>
   );
 };

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState,useEffect } from "react"
+import { useRouter } from "next/navigation";
 import { Activity, ArrowDownRight, ArrowUpRight, BarChart2, PieChart, Settings, Zap } from 'lucide-react'
 import { AreaChart, Area, PieChart as RechartsPie, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts"
 import { cn } from "@/lib/utils"
@@ -16,10 +17,9 @@ const portfolioData = [
 ]
 
 const topMovers = [
-  { name: "PEPE", change: 25.5, value: 0.00000012 },
-  { name: "SHIB", change: -12.3, value: 0.00000851 },
-  { name: "DOGE", change: 8.7, value: 0.07253 },
-  { name: "ARB", change: -5.2, value: 1.23 },
+  { name: "BTC", change: 25.5, value: 1965317002840 },
+  { name: "ETH", change: -12.3, value: 335106656370 },
+  { name: "XRP", change: 8.7, value: 261781768168 },
 ]
 
 interface SidebarItemProps {
@@ -27,6 +27,13 @@ interface SidebarItemProps {
   label: string
   active?: boolean
 }
+
+interface TopMover {
+  name: string;
+  change: number;
+  value: number;
+}
+
 
 function SidebarItem({ icon, label, active = false }: SidebarItemProps) {
   return (
@@ -82,15 +89,32 @@ interface PortfolioItem {
 const DashboardPage = () => {
   const [portfolio, setPortfolio] = useState<PortfolioItem[]>([]);
   const [trendData, setTrendData] = useState([]);
+  // const [topMovers, setTopMovers] = useState<TopMover[]>([]);
+
   const [aiInsights, setAiInsights] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const router = useRouter();
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchPortfolio = async () => {
+      const token = localStorage.getItem("token");
+      const userEmail = localStorage.getItem("userEmail");
+
+      if (!token || !userEmail) {
+        router.push("/login"); // Redirect to login if not authenticated
+        return;
+      }
+
       try {
-        const response = await axios.get("http://127.0.0.1:8000/api/portfolio/");
+        const response = await axios.post("http://127.0.0.1:8000/api/portfolio/", { email: userEmail }, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Token ${token}`, // Send auth token if required
+          },
+        });
+
         const data = response.data;
-  
+
+        // Convert portfolio data to an array
         const portfolioArray: PortfolioItem[] = Object.entries(data.portfolio).map(
           ([name, value]) => ({
             name,
@@ -98,22 +122,23 @@ const DashboardPage = () => {
             color: getColor(name),
           })
         );
-        
-  
+
         // Parse trend data
         const parsedTrendData = JSON.parse(`[${data.trend_df.replace(/} {/g, "},{")}]`);
-  
+
         setPortfolio(portfolioArray);
         setTrendData(parsedTrendData);
         setAiInsights(data.ai_insights);
+        // setTopMovers(data.top_movers);
+        console.log(topMovers)
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Error fetching portfolio:", error);
       } finally {
         setLoading(false);
       }
     };
-  
-    fetchData();
+
+    fetchPortfolio();
   }, []);
 
   const getColor = (coin: string): string => {
@@ -166,12 +191,12 @@ const DashboardPage = () => {
           </div>
 
           {/* Portfolio Overview */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+          {/* <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
             <OverviewCard title="Total Balance" value="$12,345.67" change={5.67} />
             <OverviewCard title="24h Change" value="$1,234.56" change={2.34} />
             <OverviewCard title="Total Profit" value="$3,456.78" change={-1.23} />
             <OverviewCard title="Active Positions" value="8" />
-          </div>
+          </div> */}
 
           {/* Charts */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
@@ -233,12 +258,11 @@ const DashboardPage = () => {
             </div>
           </div>
 
-          {/* Top Movers and AI Insights */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div className="bg-gray-800 rounded-lg p-6">
               <h2 className="text-xl font-semibold mb-4">Top Movers</h2>
               <div className="space-y-4">
-                {topMovers.map((mover, index) => (
+                {topMovers?.map((mover, index) => (
                   <div key={index} className="flex justify-between items-center">
                     <div>
                       <span className="font-semibold">{mover.name}</span>
