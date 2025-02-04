@@ -1,10 +1,10 @@
-import { Inter } from "next/font/google"; // Use Inter instead of Mona Sans
+import { Inter } from "next/font/google"; // Font loader should be in the module scope
 import "@/styles/globals.css";
 import { cn } from "@/lib/utils";
 import Header from "@/components/header";
-import MetaMaskWrapper from "@/components/MetaMaskWrapper"; // Import the new wrapper
-import React from "react";
+import Disclaimer from "@/components/Disclaimer"; // Import Disclaimer
 
+// Font loader should be outside the RootLayout component
 const fontSans = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
@@ -24,11 +24,9 @@ export default function RootLayout({
           fontSans.variable
         )}
       >
-        {/* Wrap everything inside MetaMaskWrapper */}
-        <MetaMaskWrapper>
-          <Header />
-          <main className="">{children}</main>
-        </MetaMaskWrapper>
+        <Header />
+        <main>{children}</main>
+        <Disclaimer /> {/* Add Disclaimer Button */}
       </body>
     </html>
   );
