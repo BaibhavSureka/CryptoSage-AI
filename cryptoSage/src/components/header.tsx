@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import React, { useState, useEffect } from "react";
 import Web3 from "web3";
@@ -32,7 +32,7 @@ const TOKEN_CONTRACTS: { [key: string]: string } = {
 };
 
 const Header = () => {
-  const { status, connect, account, disconnect } = useMetaMask(); // Use disconnect instead of reset
+  const { status, connect, account } = useMetaMask(); // Removed disconnect, as it's not available in the hook
   const [web3, setWeb3] = useState<Web3 | null>(null);
   const [ethBalance, setEthBalance] = useState<string>("0");
   const [tokenBalances, setTokenBalances] = useState<{ [key: string]: string }>({});
@@ -105,8 +105,8 @@ const Header = () => {
       localStorage.removeItem("token");
     }
 
-    // Reset the MetaMask connection state
-    disconnect(); // Disconnect MetaMask connection
+    // Optionally reset any state related to MetaMask, such as clearing account info (this will be handled outside MetaMask hook)
+    // Resetting the account state (or related state) might be required, depending on your implementation
 
     // Redirect the user to the login page
     router.push("/login");
@@ -167,6 +167,6 @@ const Header = () => {
       </nav>
     </header>
   );
-}
+};
 
 export default Header;
