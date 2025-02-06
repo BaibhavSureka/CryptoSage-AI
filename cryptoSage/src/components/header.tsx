@@ -57,36 +57,37 @@ const Header = () => {
 
   // Fetch Wallet Balances
   useEffect(() => {
-    const fetchBalances = async () => {
-      if (web3 && account) {
-        try {
-          // Fetch ETH Balance
-          const balanceWei = await web3.eth.getBalance(account);
-          const balanceEth = web3.utils.fromWei(balanceWei, "ether");
-          setEthBalance(parseFloat(balanceEth).toFixed(4));
-
-          // Fetch ERC-20 Token Balances
-          const balances: { [key: string]: string } = {};
-          for (const [symbol, contractAddress] of Object.entries(TOKEN_CONTRACTS)) {
-            const tokenContract = new web3.eth.Contract(ERC20_ABI as any, contractAddress);
-            const tokenBalance = await tokenContract.methods.balanceOf(account).call();
-            balances[symbol] = web3.utils.fromWei(tokenBalance, "ether");
-          }
-          setTokenBalances(balances);
-
-          // Send Portfolio Data to Django Backend
-          await sendPortfolioToBackend({ ethBalance, tokenBalances });
-
-        } catch (error) {
-          console.error("Error fetching balances:", error);
-        }
-      }
-    };
-
+  const fetchBalances = async () => {
     if (web3 && account) {
-      fetchBalances();
+      try {
+        // Fetch ETH Balance
+        const balanceWei = await web3.eth.getBalance(account);
+        const balanceEth = web3.utils.fromWei(balanceWei, "ether");
+        setEthBalance(parseFloat(balanceEth).toFixed(4));
+
+        // Fetch ERC-20 Token Balances
+        const balances: { [key: string]: string } = {};
+        for (const [symbol, contractAddress] of Object.entries(TOKEN_CONTRACTS)) {
+          const tokenContract = new web3.eth.Contract(ERC20_ABI as any, contractAddress);
+          const tokenBalance = await tokenContract.methods.balanceOf(account).call();
+          balances[symbol] = web3.utils.fromWei(tokenBalance, "ether");
+        }
+        setTokenBalances(balances);
+
+        // Send Portfolio Data to Django Backend
+        await sendPortfolioToBackend({ ethBalance, tokenBalances });
+
+      } catch (error) {
+        console.error("Error fetching balances:", error);
+      }
     }
-  }, [web3, account]);
+  };
+
+  if (web3 && account) {
+    fetchBalances();
+  }
+}, [web3, account, ethBalance, tokenBalances]);  // Add ethBalance and tokenBalances here
+
 
   // Function to send portfolio data to the Django backend
   const sendPortfolioToBackend = async (portfolioData: any) => {

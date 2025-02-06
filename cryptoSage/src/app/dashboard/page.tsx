@@ -139,7 +139,7 @@ const DashboardPage = () => {
     };
 
     fetchPortfolio();
-  }, []);
+  }, [router]);
 
   const getColor = (coin: string): string => {
     const colors: Record<string, string> = {

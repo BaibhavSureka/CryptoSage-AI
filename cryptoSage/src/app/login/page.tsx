@@ -1,41 +1,41 @@
-'use client'
+"use client"
 
-import { useState } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import axios from "axios";
+import { useState } from "react"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
+import axios from "axios"
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const router = useRouter();
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
+  const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null); // Reset error message
+    e.preventDefault()
+    setError(null) // Reset error message
 
     try {
-      setLoading(true);
+      setLoading(true)
       const response = await axios.post("http://127.0.0.1:8000/auth/login/", {
         email,
         password,
-      });
+      })
 
       if (response.status === 200) {
-        localStorage.setItem("token", response.data.token);
-        localStorage.setItem("userEmail",response.data.user.email) // Store auth token
-        router.push("/dashboard"); // Redirect to dashboard
+        localStorage.setItem("token", response.data.token)
+        localStorage.setItem("userEmail", response.data.user.email) // Store auth token
+        router.push("/dashboard") // Redirect to dashboard
       }
     } catch (err: any) {
-      setError(err.response?.data?.error || "Invalid email or password");
+      setError(err.response?.data?.error || "Invalid email or password")
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-900">
@@ -92,7 +92,7 @@ export default function LoginPage() {
           </div>
         </form>
         <p className="mt-2 text-center text-sm text-gray-400">
-          Don't have an account?{" "}
+          Don&apos;t have an account?{" "}
           <Link href="/register" className="font-medium text-purple-500 hover:text-purple-400">
             Sign up
           </Link>
@@ -101,3 +101,4 @@ export default function LoginPage() {
     </div>
   )
 }
+
