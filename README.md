@@ -54,7 +54,7 @@ CryptoSage combines artificial intelligence, blockchain technology, and optimiza
 
 1. Clone the repository
 ```bash
-git clone https://github.com/BaibhavSureka/DevSoc.git
+git clone https://github.com/BaibhavSureka/CryptoSage-AI.git
 cd cryptosage
 ```
 
