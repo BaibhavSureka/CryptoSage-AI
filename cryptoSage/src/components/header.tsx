@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Web3 from "web3";
 import { useMetaMask } from "metamask-react"; // Import MetaMask hook
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation"; // Import useRouter for navigation
 import axios from "axios";
 import { Button } from "./ui/button";
 
@@ -32,13 +32,20 @@ const TOKEN_CONTRACTS: { [key: string]: string } = {
 };
 
 const Header = () => {
-  const { status, connect, account } = useMetaMask();
+  const { status, connect, account, disconnect } = useMetaMask(); // Use disconnect instead of reset
   const [web3, setWeb3] = useState<Web3 | null>(null);
   const [ethBalance, setEthBalance] = useState<string>("0");
   const [tokenBalances, setTokenBalances] = useState<{ [key: string]: string }>({});
+  const [isBrowser, setIsBrowser] = useState(false); // To check if it's running in the browser
   const pathname = usePathname();
+  const router = useRouter(); // For redirecting after logout
 
   const navItems = ["Home", "Dashboard", "Chat", "Profile"];
+
+  // Check if the window object is available (running in the browser)
+  useEffect(() => {
+    setIsBrowser(typeof window !== "undefined");
+  }, []);
 
   // Initialize Web3 when connected
   useEffect(() => {
@@ -91,6 +98,20 @@ const Header = () => {
     }
   };
 
+  // Logout handler
+  const handleLogout = () => {
+    // Remove the token from localStorage
+    if (isBrowser) {
+      localStorage.removeItem("token");
+    }
+
+    // Reset the MetaMask connection state
+    disconnect(); // Disconnect MetaMask connection
+
+    // Redirect the user to the login page
+    router.push("/login");
+  };
+
   return (
     <header className="bg-gray-900 bg-opacity-80 backdrop-filter backdrop-blur-lg sticky top-0 z-50">
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -123,30 +144,29 @@ const Header = () => {
             <Button variant="ghost" className="text-gray-300 hover:text-purple-400" asChild>
               <Link href="/login">
               {
-                localStorage.getItem("token") ? "Logout" : "Login"
+                isBrowser && localStorage.getItem("token") ? (
+                  <button onClick={handleLogout} className="text-red-400">Logout</button>
+                ) : "Login"
               }
               </Link>
             </Button>
-            {localStorage.getItem("token") ? (
-              status === "connected" ? (
-                <div className="text-green-400 text-sm">
-                  <p>Wallet: {account.substring(0, 6)}...{account.slice(-4)}</p>
-                </div>
-              ) : (
-                <button
-                  onClick={connect}
-                  className="bg-purple-600 px-4 py-2 rounded-full text-white hover:bg-purple-700 transition duration-300 ease-in-out transform hover:scale-105"
-                >
-                  Connect Wallet
-                </button>
-              )
-            ) : null}
+            {isBrowser && localStorage.getItem("token") && status === "connected" ? (
+              <div className="text-green-400 text-sm">
+                <p>Wallet: {account.substring(0, 6)}...{account.slice(-4)}</p>
+              </div>
+            ) : (
+              <button
+                onClick={connect}
+                className="bg-purple-600 px-4 py-2 rounded-full text-white hover:bg-purple-700 transition duration-300 ease-in-out transform hover:scale-105"
+              >
+                Connect Wallet
+              </button>
+            )}
           </div>
         </div>
       </nav>
     </header>
-  )
+  );
 }
 
-export default Header
-
+export default Header;
