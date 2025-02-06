@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 'use client'
 
 import { Button } from "@/components/ui/button"
@@ -33,11 +34,19 @@ export default function HomePage() {
               </li>
             </ul>
             <div className="space-x-4">
-              <Button asChild size="lg" className="bg-purple-500 text-white px-6 py-3 rounded-full font-semibold hover:bg-purple-600">
+              <Button
+                asChild
+                size="lg"
+                className="bg-purple-500 text-white px-6 py-3 rounded-full font-semibold hover:bg-purple-600"
+              >
                 <Link href="/dashboard">Get started for Free</Link>
               </Button>
-              <Button variant="outline" size="lg" className="border bg-black border-white text-white px-6 py-3 rounded-full font-semibold hover:bg-white hover:text-purple-500" onClick={() => setIsGameOpen(true)}
-                >
+              <Button
+                variant="outline"
+                size="lg"
+                className="border bg-black border-white text-white px-6 py-3 rounded-full font-semibold hover:bg-white hover:text-purple-500"
+                onClick={() => setIsGameOpen(true)}
+              >
                 Play To Learn Crypto
               </Button>
               <CryptoGame isOpen={isGameOpen} onClose={() => setIsGameOpen(false)} />
@@ -259,23 +268,23 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Testimonials Section */}
+       {/* Testimonials Section */}
       <section className="bg-[#0D1117] py-20 px-6 border-t border-gray-800">
         <div className="container mx-auto">
           <h2 className="text-3xl font-bold text-white text-center mb-12">What Our Users Say</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="bg-gray-800/50 p-6 rounded-lg">
               <p className="text-gray-300 mb-4">
-                "CryptoAI has revolutionized my trading strategy. The AI-powered insights have significantly improved my
-                portfolio performance."
+                &quot;CryptoAI has revolutionized my trading strategy. The AI-powered insights have significantly
+                improved my portfolio performance.&quot;
               </p>
               <p className="font-semibold text-white">Sarah K.</p>
               <p className="text-gray-400">Crypto Enthusiast</p>
             </div>
             <div className="bg-gray-800/50 p-6 rounded-lg">
               <p className="text-gray-300 mb-4">
-                "The multi-chain portfolio tracking and automated trading features have saved me countless hours. It's a
-                game-changer for serious crypto investors."
+                &quot;The multi-chain portfolio tracking and automated trading features have saved me countless hours.
+                It&apos;s a game-changer for serious crypto investors.&quot;
               </p>
               <p className="font-semibold text-white">Michael R.</p>
               <p className="text-gray-400">Professional Trader</p>
